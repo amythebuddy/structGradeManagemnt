@@ -32,19 +32,20 @@ func manageData(of student: [String], appendTo data: inout [Student]){
     var grades: [String] = []
     var assignment = 0.0
     for i in 1..<student.count {
-        grades.append(student[i])
+        grades.append(student[i]) // append each grade to the grades variable
         if let gradeOfEachAssignment = Double(student[i]){
-            assignment += gradeOfEachAssignment
+            assignment += gradeOfEachAssignment // add all the grades to find average
         }
     }
-    let averageOfSingleStudent = assignment / 10
+    let averageOfSingleStudent = assignment / 10 // divide by the amount of assignments
     let inputStudent: Student = Student(studentName: name, grades: grades, averageGrade: averageOfSingleStudent)
     data.append(inputStudent)
 }
 func findStudent(byName name : String, accessThrough data: [Student]) -> Student?{
+    // find the student in lowercase
     let lowercaseName = name.lowercased() //turn all name to lowercase
     for student in data {
-        if student.studentName.lowercased() == lowercaseName {
+        if student.studentName.lowercased() == lowercaseName { // if there is a student with that name
             return student
         }
     }
@@ -88,7 +89,74 @@ func showMainMenu(){
                     calculateAverageGradeOfTheClass(with: students)
                 case "5":
                     findAverageGradeOfAssignment(with: students)
-                
+                case "6", "7":
+                    if userInput == "7"{ // print the highest grade
+                        //highestGrade stores the element of that students includes their name, grades, and averageGrade
+                        if let highestGrade = students.max(by: {$0.averageGrade < $1.averageGrade}){
+                                print("\(highestGrade.studentName) is the student with the highest grade: \(highestGrade.averageGrade)")
+                        } else {
+                            print("There is an error")
+                        }
+                    } else { //print the lowest grade
+                        //lowestGrade stores the element of that students includes their name, grades, and averageGrade
+                        if let lowestGrade = students.min(by: {$0.averageGrade < $1.averageGrade}){
+                            print("\(lowestGrade.studentName) is the student with the lowest grade: \(lowestGrade.averageGrade)")
+                        } else {
+                            print("There is an error")
+                        }
+                    }
+                case "8":
+                    print("Enter the low range you would like to use: ")
+                   guard let lowNumber = readLine(), let lowGrade = Double(lowNumber) else {
+                       print("Please enter a number!")
+                       continue
+                   }
+                   print("Enter the high range you would like to use: ")
+                   guard let highNumber = readLine(), let highGrade = Double(highNumber) else {
+                       print("Please enter a number!")
+                       continue
+                   }
+                   if lowGrade > highGrade {
+                       print("The low range is bigger than the high range. Please enter back.")
+                   } else {
+                       //filter the grade that is higher than lowGrade and lower than highGrade
+                       // return back a dictionary of students with in range grade
+                       let studentsInRange = students.filter({$0.averageGrade > lowGrade && $0.averageGrade < highGrade})
+                       for student in studentsInRange { // for each student in range, print out their name and grade
+                           print("\(student.studentName): \(student.averageGrade)")
+                       }
+                   }
+                case "9":
+                    print("What student do you want to change?")
+                    guard let nameInput = readLine(), var studentName = findStudent(byName: nameInput, accessThrough: students) else {
+                        print("There is no student with that name")
+                        continue
+                    }
+                    print("Which assignent grade would you like to change (1-10):")
+                    guard let number = readLine(), let assignmentNumber = Int(number), assignmentNumber > 0, assignmentNumber < 11 else {
+                        print("Please enter a number from 1 to 10")
+                        continue
+                    }
+                    print("What is the new grade of this student?")
+                    guard let grade = readLine(), let new = Double(grade), new > 0.0 else {
+                        print("Please enter a postive number.")
+                        continue
+                    }
+                    studentName.grades[assignmentNumber-1] = grade // change the assignment grade
+                    // recalculate the average grade after the change
+                    var assignmentGrade = 0.0
+                    for i in studentName.grades.indices {
+                        if let gradeOfEachAssignment = Double(studentName.grades[i]){
+                            assignmentGrade += gradeOfEachAssignment // add all the grades to find average
+                        }
+                    }
+                    let averageOfSingleStudent = assignmentGrade / 10 // divide by the amount of assignments
+                    studentName.averageGrade = averageOfSingleStudent // update the averageGrade
+                    //find the index of the student to update
+                    if let index = students.firstIndex(where: { $0.studentName == studentName.studentName }) {
+                        students[index] = studentName
+                    }
+                    print("You have changed \(studentName.studentName)'s grades of assingment #\(assignmentNumber)")
                 case "10":
                     print("Have a great rest of your day!")
                     menuRunning = false
@@ -99,25 +167,23 @@ func showMainMenu(){
     }
 }
 func showAllGradesOfAStudent(_ student: Student){
-    //dropFirst means remove the first element without changing the original array
-    let gradesString = student.grades.joined(separator: ", ")
+    let gradesString = student.grades.joined(separator: ", ") // get the array grades and joined it
     print(gradesString)
 }
 func showAllGradesOfAll(students: [Student]){
     for i in students.indices{
         // terminator is to connect the second print to this line
         print("\(students[i].studentName) grades are:", terminator: " ")
-        // map is pulling each element out and joined with each other with comma
-        let gradesString = students[i].grades.joined(separator: ", ")
+        let gradesString = students[i].grades.joined(separator: ", ") // get the array grades and joined it
         print(gradesString)
     }
 }
 func calculateAverageGradeOfTheClass(with data: [Student]) {
     var totalAverage = 0.0
     for i in data.indices{
-        totalAverage += data[i].averageGrade
+        totalAverage += data[i].averageGrade // add all the students' averageGrade
     }
-    totalAverage /= Double(data.count)
+    totalAverage /= Double(data.count) // divide it by the total students in the class
     print("The class average is: " + String(format: "%.2f", totalAverage))
 }
 func findAverageGradeOfAssignment(with data: [Student]) {
@@ -137,7 +203,5 @@ func findAverageGradeOfAssignment(with data: [Student]) {
     let averageOfAnAssignment = sumOfAssignmentGrades / sumOfAmountOfThatAssignment
     print("The average for assignment #\(assignmentNumber) is: " + String(format: "%.2f", averageOfAnAssignment))
 }
-func findHighest(with data: [Student]){
-    
-}
+
 showMainMenu()
