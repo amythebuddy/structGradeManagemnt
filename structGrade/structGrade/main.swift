@@ -16,7 +16,7 @@ struct Student{
 
 func readCSVFiles(data: inout [Student]) {
     do {
-        let stream = InputStream(fileAtPath: "/Users/nguyenhuyen/Desktop/grades.csv")
+        let stream = InputStream(fileAtPath: "/Users/studentam/Desktop/grades.csv")
         let csv = try CSVReader(stream: stream!)
         
         while let student = csv.next(){
